@@ -1,4 +1,22 @@
 /* Import all style partials */
-@use 'styles/variables';
-@use 'styles/reset';
-@use 'styles/typography';
+@use "styles/variables";
+@use "styles/reset";
+@use "styles/typography";
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100dvh;
+  gap: 20px;
+  router-outlet {
+    display: none;
+  }
+  header {
+    flex-grow: 0;
+  }
+  app-ocr {
+    flex-grow: 1;
+    display: flex;
+  }
+}

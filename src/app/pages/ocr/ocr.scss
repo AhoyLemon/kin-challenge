@@ -1,27 +1,26 @@
-@use '../../../styles' as *;
+@use "../../../styles" as *;
 
-.csv-upload {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+$max-width: 1200px;
+$gap: 20px;
+$border-radius: 8px;
 
-  h1 {
-    color: var(--color-neutral-black);
-    margin-bottom: 2rem;
-  }
+@mixin container($width: $max-width) {
+  width: 100%;
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  h2 {
-    color: var(--color-neutral-700);
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-  }
+.page-ocr {
+  @include container();
+  display: grid;
+  gap: $gap;
+  grid-template-columns: 300px 1fr;
 
   form {
-    margin-bottom: 2rem;
-
     fieldset {
       border: 1px solid var(--color-neutral-400);
-      border-radius: 8px;
+      border-radius: $border-radius;
       padding: 1.5rem;
       background: var(--color-neutral-white);
 
@@ -43,7 +42,7 @@
       }
     }
 
-    input[type='file'] {
+    input[type="file"] {
       padding: 0.75rem;
       border: 2px dashed var(--color-neutral-400);
       border-radius: 4px;
@@ -66,7 +65,7 @@
       color: var(--color-neutral-600);
     }
 
-    button[type='submit'] {
+    button[type="submit"] {
       padding: 0.75rem 1.5rem;
       background: var(--color-secondary);
       color: var(--color-neutral-white);
@@ -97,18 +96,109 @@
     margin-bottom: 1rem;
   }
 
+  .error-messages {
+    margin-top: 40px;
+    background: var(--color-warning-600);
+    border: 1px solid var(--color-warning-200);
+    color: var(--color-warning-100);
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    animation: shake 0.5s ease-in-out;
+
+    h2 {
+      text-transform: uppercase;
+      font-size: 1.15rem;
+    }
+
+    ul {
+      //padding-left: 1.5rem;
+
+      li {
+        margin-bottom: 0.25rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-10px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(10px);
+    }
+  }
+
+  .empty-state {
+    min-height: 80%;
+    border-radius: $border-radius;
+    border: 1px solid var(--color-neutral-400);
+    background-color: var(--color-neutral-200);
+    color: var(--color-neutral-600);
+    padding: 1.5rem;
+
+    .requirements-list {
+      display: grid;
+      gap: 0.5em;
+      li {
+        margin-bottom: 0.5rem;
+        display: grid;
+        grid-template-columns: 8px 1fr;
+        gap: 16px;
+        .icon {
+          aspect-ratio: 1/1;
+          background-color: var(--color-neutral-600);
+          border-radius: 50%;
+          margin-top: 8px;
+        }
+        &.passed {
+          color: var(--color-success-600);
+          .icon {
+            background-color: var(--color-success-600);
+          }
+        }
+        &.failed {
+          color: var(--color-warning-600);
+          .icon {
+            background-color: var(--color-warning-600);
+          }
+        }
+      }
+    }
+  }
+
   .table-container {
-    margin-top: 2rem;
-    overflow-x: auto;
     background: var(--color-neutral-white);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: $border-radius;
+    border: 1px solid var(--color-neutral-400);
     padding: 1.5rem;
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 600px;
+
+      caption {
+        font-size: 1.75rem;
+        text-align: left;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-size: 1.125rem;
+      }
 
       thead {
         background: var(--color-neutral-200);

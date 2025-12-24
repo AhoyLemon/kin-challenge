@@ -1,8 +1,0 @@
-@use '../styles.scss' as *;
-@use '../styles' as *;
-
-.app-container {
-  display: grid;
-  grid-template-rows: 60px 0 1fr 60px;
-  min-height: 100dvh;
-}
