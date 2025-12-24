@@ -1,1 +1,47 @@
-<h1>Hello, Kin OCR</h1>
+<main class="csv-upload">
+  <h1>CSV File Upload</h1>
+
+  <form (ngSubmit)="onSubmit()" #csvForm="ngForm">
+    <fieldset>
+      <legend>Upload CSV File</legend>
+
+      <div class="form-group">
+        <label for="csvFile">Choose CSV file:</label>
+        <input
+          type="file"
+          id="csvFile"
+          name="csvFile"
+          (change)="onFileSelected($event)"
+          accept=".csv"
+          required
+          #fileInput
+        />
+        <p class="info-text">Maximum file size: 2MB</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="!selectedFile">
+        Upload and Display
+      </button>
+    </fieldset>
+  </form>
+
+  <section *ngIf="csvData.length > 0" class="table-container">
+    <h2>CSV Data ({{ csvData.length }} rows)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th *ngFor="let header of headers" scope="col">{{ header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of csvData; let rowIndex = index">
+          <td *ngFor="let header of headers">{{ row[header] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
