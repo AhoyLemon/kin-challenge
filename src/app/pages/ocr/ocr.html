@@ -1,74 +1,96 @@
 <main class="page-ocr">
-  <section class="form-holder">
-    <form>
-      <fieldset>
-        <div class="form-group">
-          <label for="csvFile">Choose CSV file:</label>
-          <input type="file" id="csvFile" name="csvFile" (change)="onFileSelected($event)" accept=".csv" required #fileInput />
-        </div>
-      </fieldset>
-    </form>
-  </section>
+  <div class="page-ocr-inner">
+    <section class="form-holder">
+      <form>
+        <fieldset>
+          <div class="form-group">
+            <label for="csvFile">Choose CSV file:</label>
+            <input type="file" id="csvFile" name="csvFile" (change)="onFileSelected($event)" accept=".csv" required #fileInput />
+            <button *ngIf="selectedFile" type="button" class="clear-button" (click)="clearFile(fileInput)">Clear</button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
 
-  <section *ngIf="!policies || policies.length === 0" class="loading-indicator">
-    <div class="empty-state">
-      <h1>Kin OCR</h1>
-      <p>Welcome!</p>
-      <p>Please upload a CSV file to get started.</p>
+    <section *ngIf="!policies || policies.length === 0" class="loading-indicator">
+      <div class="empty-state">
+        <h1>Kin OCR</h1>
+        <p>Welcome!</p>
+        <p>Please upload a CSV file to get started.</p>
 
-      <dl>
-        <dt>Requirements:</dt>
-        <dd>
-          <ul class="requirements-list">
-            <li [ngClass]="validationStates.isValidFile">
-              <span class="icon"></span>
-              Must be a valid CSV file
-            </li>
-            <li [ngClass]="validationStates.isSizeValid">
-              <span class="icon"></span>
-              Must be less than 2 MB in size
-            </li>
-            <li [ngClass]="validationStates.hasInvalidCharacters">
-              <span class="icon"></span>
-              Must contain only numbers, commas, and spaces
-            </li>
+        <dl>
+          <dt>Requirements:</dt>
+          <dd>
+            <ul class="requirements-list">
+              <li [ngClass]="validationStates.isValidFile">
+                <span class="icon"></span>
+                Must be a valid CSV file
+              </li>
+              <li [ngClass]="validationStates.isSizeValid">
+                <span class="icon"></span>
+                Must be less than 2 MB in size
+              </li>
+              <li [ngClass]="validationStates.hasInvalidCharacters">
+                <span class="icon"></span>
+                Must contain only numbers, commas, and spaces
+              </li>
+            </ul>
+          </dd>
+        </dl>
+
+        <aside role="alert" *ngIf="errorStatus.messages.length > 0" class="error-messages">
+          <h2>Error{{ errorStatus.messages.length > 1 ? "s" : "" }}:</h2>
+          <ul>
+            <li *ngFor="let message of errorStatus.messages">{{ message }}</li>
           </ul>
-        </dd>
-      </dl>
+        </aside>
+      </div>
+    </section>
 
-      <aside role="alert" *ngIf="errorStatus.messages.length > 0" class="error-messages">
-        <h2>Error{{ errorStatus.messages.length > 1 ? "s" : "" }}:</h2>
-        <ul>
-          <li *ngFor="let message of errorStatus.messages">{{ message }}</li>
-        </ul>
-      </aside>
-    </div>
-  </section>
+    <section *ngIf="policies.length > 0" class="policy-tables">
+      <div class="table-container">
+        <table>
+          <caption>
+            Policies ({{
+              policies.length
+            }}
+            total)
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Policy #</th>
+              <th scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let policy of policies; let i = index" [ngClass]="{ error: !policy.isValid }">
+              <td class="index">{{ i + 1 }}</td>
+              <td class="policy-number">{{ policy.policyNumber }}</td>
+              <td class="result" [ngClass]="{ valid: policy.isValid }">{{ policy.isValid ? "valid" : "ERROR!" }}</td>
+            </tr>
+          </tbody>
+        </table>
 
-  <section *ngIf="policies.length > 0" class="policy-tables">
-    <div class="table-container">
-      <table>
-        <caption>
-          Policies ({{
-            policies.length
-          }}
-          total)
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Policy #</th>
-            <th scope="col">Result</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let policy of policies; let i = index" [ngClass]="{ error: !policy.isValid }">
-            <td class="index">{{ i + 1 }}</td>
-            <td class="policy-number">{{ policy.policyNumber }}</td>
-            <td class="result">{{ policy.isValid ? "valid" : "ERROR!" }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+        <div class="submission-process">
+          <button *ngIf="submissionStatus === 'idle'" type="button" class="submit-button" (click)="submitPolicyNumbers()">Submit Policy Numbers</button>
+
+          <div *ngIf="submissionStatus === 'submitting'" class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <p class="progress-text">Submitting policy numbers...</p>
+          </div>
+
+          <div *ngIf="submissionStatus === 'success'" class="submission-message success">
+            {{ submissionMessage }}
+          </div>
+
+          <div *ngIf="submissionStatus === 'error'" class="submission-message error">
+            {{ submissionMessage }}
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </main>

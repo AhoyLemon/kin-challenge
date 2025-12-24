@@ -1,0 +1,16 @@
+@use "_variables";
+
+@mixin container($width: 1200px) {
+  width: 100%;
+  max-width: $width;
+  margin-left: auto;
+  margin-right: auto;
+  @media (max-width: ($width + 40px)) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  @media (max-width: 420px) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

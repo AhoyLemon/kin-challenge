@@ -1,6 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { HttpClient } from "@angular/common/http";
 
 @Component({
   selector: "app-ocr",
@@ -10,6 +11,8 @@ import { FormsModule } from "@angular/forms";
   imports: [CommonModule, FormsModule],
 })
 export class OcrComponent {
+  private http = inject(HttpClient);
+
   validationState: "default" | "passed" | "failed" = "default";
 
   validationStates = {
@@ -30,6 +33,10 @@ export class OcrComponent {
   errorMessage: string = "";
   selectedFile: File | null = null;
 
+  submissionStatus: "idle" | "submitting" | "success" | "error" = "idle";
+  submissionMessage: string = "";
+  submittedResourceId: number | null = null;
+
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
 
   onFileSelected(event: Event): void {
@@ -40,6 +47,9 @@ export class OcrComponent {
     this.errorMessage = "";
     this.policies = [];
     this.selectedFile = null;
+    this.submissionStatus = "idle";
+    this.submissionMessage = "";
+    this.submittedResourceId = null;
     this.errorStatus = {
       hasErrors: false,
       isTooBig: false,
@@ -155,6 +165,32 @@ export class OcrComponent {
     reader.readAsText(file);
   }
 
+  clearFile(fileInput: HTMLInputElement): void {
+    // Clear the file input
+    fileInput.value = "";
+
+    // Reset all state
+    this.selectedFile = null;
+    this.policies = [];
+    this.errorMessage = "";
+    this.submissionStatus = "idle";
+    this.submissionMessage = "";
+    this.submittedResourceId = null;
+    this.errorStatus = {
+      hasErrors: false,
+      isTooBig: false,
+      isInvalidFile: false,
+      isTooManyRows: false,
+      isEmpty: false,
+      messages: [],
+    };
+    this.validationStates = {
+      isValidFile: "default",
+      isSizeValid: "default",
+      hasInvalidCharacters: "default",
+    };
+  }
+
   /**
    * Validates a policy number using checksum algorithm.
    * Formula: (d1 + (2*d2) + (3*d3) + ... + (9*d9)) mod 11 = 0
@@ -178,5 +214,46 @@ export class OcrComponent {
 
     // Valid if sum is divisible by 11
     return sum % 11 === 0;
+  }
+
+  submitPolicyNumbers(): void {
+    this.submissionStatus = "submitting";
+    this.submissionMessage = "";
+    this.submittedResourceId = null;
+
+    const startTime = Date.now();
+
+    // POST to jsonplaceholder
+    this.http
+      .post<{ id: number; title: string; body: string; userId: number }>("https://jsonplaceholder.typicode.com/posts", {
+        title: "Policy Numbers Submission",
+        body: JSON.stringify(this.policies),
+        userId: 1,
+      })
+      .subscribe({
+        next: (response) => {
+          const elapsed = Date.now() - startTime;
+          const remainingTime = Math.max(0, 2000 - elapsed);
+
+          // Ensure minimum 2 second delay
+          setTimeout(() => {
+            this.submissionStatus = "success";
+            this.submittedResourceId = response.id;
+            this.submissionMessage = `Successfully submitted ${this.policies.length} policy numbers! Resource ID: ${response.id}`;
+            console.log("Submission response:", response);
+          }, remainingTime);
+        },
+        error: (error) => {
+          const elapsed = Date.now() - startTime;
+          const remainingTime = Math.max(0, 2000 - elapsed);
+
+          // Ensure minimum 2 second delay even for errors
+          setTimeout(() => {
+            this.submissionStatus = "error";
+            this.submissionMessage = "Failed to submit policy numbers. Please try again.";
+            console.error("Submission error:", error);
+          }, remainingTime);
+        },
+      });
   }
 }
