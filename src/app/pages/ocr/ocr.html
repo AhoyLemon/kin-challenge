@@ -1,0 +1,51 @@
+<main class="csv-upload">
+  <h1>CSV File Upload</h1>
+
+  <form (ngSubmit)="onSubmit()" #csvForm="ngForm">
+    <fieldset>
+      <legend>Upload CSV File</legend>
+
+      <div class="form-group">
+        <label for="csvFile">Choose CSV file:</label>
+        <input
+          type="file"
+          id="csvFile"
+          name="csvFile"
+          (change)="onFileSelected($event)"
+          accept=".csv"
+          required
+          #fileInput
+        />
+        <p class="info-text">Maximum file size: 2MB</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="!selectedFile">
+        Upload and Display
+      </button>
+    </fieldset>
+  </form>
+
+  <section *ngIf="policies.length > 0" class="table-container">
+    <h2>Policies ({{ policies.length }} total)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Policy #</th>
+          <th scope="col">Is Valid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let policy of policies; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ policy.policyNumber }}</td>
+          <td>{{ policy.isValid }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>

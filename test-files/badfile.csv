@@ -1,0 +1,4 @@
+{
+  "error": "This is not a CSV file",
+  "message": "This file contains JSON instead of CSV data"
+}
