@@ -15,7 +15,7 @@ export class OcrComponent {
   validationStates = {
     isValidFile: "default" as "default" | "passed" | "failed",
     isSizeValid: "default" as "default" | "passed" | "failed",
-    isSingleRow: "default" as "default" | "passed" | "failed",
+    hasInvalidCharacters: "default" as "default" | "passed" | "failed",
   };
 
   errorStatus = {
@@ -26,7 +26,7 @@ export class OcrComponent {
     isEmpty: false,
     messages: [] as string[],
   };
-  policies: { policyNumber: number; isValid: boolean }[] = [];
+  policies: { policyNumber: string; isValid: boolean }[] = [];
   errorMessage: string = "";
   selectedFile: File | null = null;
 
@@ -51,7 +51,7 @@ export class OcrComponent {
     this.validationStates = {
       isValidFile: "default",
       isSizeValid: "default",
-      isSingleRow: "default",
+      hasInvalidCharacters: "default",
     };
 
     if (!file) {
@@ -103,51 +103,43 @@ export class OcrComponent {
 
         if (lines.length === 0) {
           this.validationStates.isValidFile = "failed";
-          this.validationStates.isSingleRow = "failed";
           this.errorStatus.hasErrors = true;
           this.errorStatus.isEmpty = true;
           this.errorStatus.messages.push("The CSV file is empty.");
           return;
         }
 
-        // Check if first line looks like CSV (contains commas, not JSON/XML markers)
-        const firstLine = lines[0].trim();
-        if (!/^[\d,]+$/.test(firstLine)) {
-          this.validationStates.isValidFile = "failed";
+        // Check for invalid characters (only allow numbers, commas, spaces, and line breaks)
+        if (!/^[\d,\s]+$/.test(csv.trim())) {
+          this.validationStates.hasInvalidCharacters = "failed";
           this.errorStatus.hasErrors = true;
           this.errorStatus.isInvalidFile = true;
-          this.errorStatus.messages.push("The file must only contain numbers and commas.");
+          this.errorStatus.messages.push("The file must only contain numbers, commas, and spaces.");
           return;
         }
+
+        // Character validation passed
+        this.validationStates.hasInvalidCharacters = "passed";
 
         // File content appears to be valid CSV format
         this.validationStates.isValidFile = "passed";
 
-        if (lines.length > 1) {
-          this.validationStates.isSingleRow = "failed";
-          this.errorStatus.hasErrors = true;
-          this.errorStatus.isTooManyRows = true;
-          this.errorStatus.messages.push(`Your file has ${lines.length} rows. Only a single row of comma-separated values is allowed.`);
-          return;
-        }
-
-        // Single row validation passed
-        this.validationStates.isSingleRow = "passed";
-
-        // Parse the single line into policy numbers
-        const values = lines[0]
+        // Parse all lines into policy numbers (flatten multi-line CSVs)
+        const values = lines
+          .join(",") // Combine all lines with commas
           .split(",")
           .map((v) => v.trim())
           .filter((v) => v !== "");
-        this.policies = values.map((val) => ({
-          policyNumber: Number(val),
-          isValid: true,
-        }));
+        this.policies = values.map((val) => {
+          return {
+            policyNumber: val, // Keep as string to preserve leading zeros
+            isValid: this.validateChecksum(val),
+          };
+        });
 
         console.log("Policies:", this.policies);
       } catch (error) {
         this.validationStates.isValidFile = "failed";
-        this.validationStates.isSingleRow = "failed";
         this.errorStatus.hasErrors = true;
         this.errorStatus.messages.push("Error parsing CSV file. Please ensure it is properly formatted.");
         console.error("CSV parsing error:", error);
@@ -156,11 +148,35 @@ export class OcrComponent {
 
     reader.onerror = () => {
       this.validationStates.isValidFile = "failed";
-      this.validationStates.isSingleRow = "failed";
       this.errorStatus.hasErrors = true;
       this.errorStatus.messages.push("Error reading file.");
     };
 
     reader.readAsText(file);
+  }
+
+  /**
+   * Validates a policy number using checksum algorithm.
+   * Formula: (d1 + (2*d2) + (3*d3) + ... + (9*d9)) mod 11 = 0
+   * Where d1 is the rightmost digit, d2 is second from right, etc.
+   */
+  private validateChecksum(policyNumberStr: string): boolean {
+    // Policy numbers must be exactly 9 digits
+    if (policyNumberStr.length !== 9) {
+      return false;
+    }
+
+    const digits = policyNumberStr.split("").map(Number);
+
+    // Calculate checksum: sum of (position * digit) from right to left
+    let sum = 0;
+    for (let i = 0; i < digits.length; i++) {
+      const position = i + 1; // Position starts at 1 from the right
+      const digit = digits[digits.length - 1 - i]; // Get digit from right to left
+      sum += position * digit;
+    }
+
+    // Valid if sum is divisible by 11
+    return sum % 11 === 0;
   }
 }

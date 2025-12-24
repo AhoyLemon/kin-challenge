@@ -28,9 +28,9 @@
               <span class="icon"></span>
               Must be less than 2 MB in size
             </li>
-            <li [ngClass]="validationStates.isSingleRow">
+            <li [ngClass]="validationStates.hasInvalidCharacters">
               <span class="icon"></span>
-              <span>Must be a single row of numbers, ex: <code>123,456,789</code></span>
+              Must contain only numbers, commas, and spaces
             </li>
           </ul>
         </dd>
@@ -45,28 +45,30 @@
     </div>
   </section>
 
-  <section *ngIf="policies.length > 0" class="table-container">
-    <table>
-      <caption>
-        Policies ({{
-          policies.length
-        }}
-        total)
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Policy #</th>
-          <th scope="col">Is Valid</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let policy of policies; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ policy.policyNumber }}</td>
-          <td>{{ policy.isValid }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <section *ngIf="policies.length > 0" class="policy-tables">
+    <div class="table-container">
+      <table>
+        <caption>
+          Policies ({{
+            policies.length
+          }}
+          total)
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Policy #</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let policy of policies; let i = index" [ngClass]="{ error: !policy.isValid }">
+            <td class="index">{{ i + 1 }}</td>
+            <td class="policy-number">{{ policy.policyNumber }}</td>
+            <td class="result">{{ policy.isValid ? "valid" : "ERROR!" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </main>
