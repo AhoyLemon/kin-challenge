@@ -150,8 +150,6 @@ export class OcrComponent {
             isValid: this.validateChecksum(val),
           };
         });
-
-        console.log("Policies:", this.policies);
       } catch (error) {
         this.validationStates.isValidFile = "failed";
         this.errorStatus.hasErrors = true;

@@ -3,24 +3,25 @@
 
 module.exports = function (config) {
   config.set({
-    basePath: '',
-    frameworks: ['jasmine', '@angular-devkit/build-angular'],
-    plugins: [
-      require('karma-jasmine'),
-      require('karma-chrome-launcher'),
-      require('@angular-devkit/build-angular/plugins/karma'),
-    ],
+    basePath: "",
+    frameworks: ["jasmine", "@angular-devkit/build-angular"],
+    plugins: [require("karma-jasmine"), require("karma-chrome-launcher"), require("@angular-devkit/build-angular/plugins/karma")],
     client: {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
     jasmineHtmlReporter: {
       suppressAll: true, // removes the duplicated traces
     },
-    browsers: ['Chrome'],
+    files: [{ pattern: "test-files/**/*.csv", included: false, served: true, watched: false }],
+    browsers: ["Chrome", "BraveHeadless"],
     customLaunchers: {
       ChromeHeadlessCI: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox'],
+        base: "ChromeHeadless",
+        flags: ["--no-sandbox"],
+      },
+      BraveHeadless: {
+        base: "ChromeHeadless",
+        flags: ["--no-sandbox"],
       },
     },
     singleRun: true,
