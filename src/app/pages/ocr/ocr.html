@@ -50,12 +50,6 @@
     <section *ngIf="policies.length > 0" class="policy-tables">
       <div class="table-container">
         <table>
-          <caption>
-            Policies ({{
-              policies.length
-            }}
-            total)
-          </caption>
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -67,9 +61,21 @@
             <tr *ngFor="let policy of policies; let i = index" [ngClass]="{ error: !policy.isValid }">
               <td class="index">{{ i + 1 }}</td>
               <td class="policy-number">{{ policy.policyNumber }}</td>
-              <td class="result" [ngClass]="{ valid: policy.isValid }">{{ policy.isValid ? "valid" : "ERROR!" }}</td>
+              <td class="result" [ngClass]="{ valid: policy.isValid }">{{ policy.isValid ? "valid" : "ERROR" }}</td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="summary">
+                Total Policies: {{ policies.length }}
+                <ng-container *ngIf="validCount === policies.length"> (all valid) </ng-container>
+                <ng-container *ngIf="validCount === 0"> (all errors) </ng-container>
+                <ng-container *ngIf="validCount > 0 && validCount < policies.length">
+                  ({{ validCount }} valid, {{ policies.length - validCount }} errors)
+                </ng-container>
+              </td>
+            </tr>
+          </tfoot>
         </table>
 
         <div class="submission-process">
@@ -82,12 +88,21 @@
             <p class="progress-text">Submitting policy numbers...</p>
           </div>
 
-          <div *ngIf="submissionStatus === 'success'" class="submission-message success">
-            {{ submissionMessage }}
-          </div>
+          <section *ngIf="submissionStatus === 'success'" class="submission-message success" aria-live="polite" aria-atomic="true">
+            <header>
+              <h2>Submission Successful</h2>
+            </header>
+            <dl class="submission-details">
+              <dt>Resource ID:</dt>
+              <dd>
+                {{ submissionDetails?.resourceId }}
+              </dd>
+            </dl>
+          </section>
 
           <div *ngIf="submissionStatus === 'error'" class="submission-message error">
-            {{ submissionMessage }}
+            <h2>Submission Failed</h2>
+            <p>Failed to submit policy numbers. Please try again.</p>
           </div>
         </div>
       </div>

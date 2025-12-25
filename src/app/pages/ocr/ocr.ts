@@ -34,10 +34,14 @@ export class OcrComponent {
   selectedFile: File | null = null;
 
   submissionStatus: "idle" | "submitting" | "success" | "error" = "idle";
-  submissionMessage: string = "";
+  submissionDetails: { resourceId: number | null; policyCount: number } | null = null;
   submittedResourceId: number | null = null;
 
   private readonly MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB in bytes
+
+  get validCount(): number {
+    return this.policies.filter((p) => p.isValid).length;
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -48,7 +52,7 @@ export class OcrComponent {
     this.policies = [];
     this.selectedFile = null;
     this.submissionStatus = "idle";
-    this.submissionMessage = "";
+    this.submissionDetails = null;
     this.submittedResourceId = null;
     this.errorStatus = {
       hasErrors: false,
@@ -174,7 +178,7 @@ export class OcrComponent {
     this.policies = [];
     this.errorMessage = "";
     this.submissionStatus = "idle";
-    this.submissionMessage = "";
+    this.submissionDetails = null;
     this.submittedResourceId = null;
     this.errorStatus = {
       hasErrors: false,
@@ -218,7 +222,10 @@ export class OcrComponent {
 
   submitPolicyNumbers(): void {
     this.submissionStatus = "submitting";
-    this.submissionMessage = "";
+    this.submissionDetails = {
+      resourceId: null,
+      policyCount: 0,
+    };
     this.submittedResourceId = null;
 
     const startTime = Date.now();
@@ -239,7 +246,7 @@ export class OcrComponent {
           setTimeout(() => {
             this.submissionStatus = "success";
             this.submittedResourceId = response.id;
-            this.submissionMessage = `Successfully submitted ${this.policies.length} policy numbers! Resource ID: ${response.id}`;
+            this.submissionDetails = { resourceId: response.id, policyCount: this.policies.length };
             console.log("Submission response:", response);
           }, remainingTime);
         },
@@ -250,7 +257,7 @@ export class OcrComponent {
           // Ensure minimum 2 second delay even for errors
           setTimeout(() => {
             this.submissionStatus = "error";
-            this.submissionMessage = "Failed to submit policy numbers. Please try again.";
+
             console.error("Submission error:", error);
           }, remainingTime);
         },
