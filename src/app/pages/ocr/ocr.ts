@@ -13,8 +13,6 @@ import { HttpClient } from "@angular/common/http";
 export class OcrComponent {
   private http = inject(HttpClient);
 
-  validationState: "default" | "passed" | "failed" = "default";
-
   validationStates = {
     isValidFile: "default" as "default" | "passed" | "failed",
     isSizeValid: "default" as "default" | "passed" | "failed",
@@ -72,7 +70,6 @@ export class OcrComponent {
       return;
     }
 
-    // Validate file type (extension check - content validation happens in parseCSV)
     if (!file.name.toLowerCase().endsWith(".csv") && file.type !== "text/csv") {
       this.validationStates.isValidFile = "failed";
       this.errorStatus.hasErrors = true;
@@ -82,9 +79,7 @@ export class OcrComponent {
       input.value = "";
       return;
     }
-    // Don't set isValidFile to "passed" yet - wait for content validation in parseCSV
 
-    // Validate file size
     if (file.size > this.MAX_FILE_SIZE) {
       this.validationStates.isSizeValid = "failed";
       this.errorStatus.hasErrors = true;
@@ -95,14 +90,9 @@ export class OcrComponent {
       return;
     }
     this.validationStates.isSizeValid = "passed";
-
-    // Store the valid file
     this.selectedFile = file;
-    // Parse and display immediately
     this.parseCSV(file);
   }
-
-  // onSubmit is no longer needed
 
   private parseCSV(file: File): void {
     const reader = new FileReader();
@@ -110,9 +100,6 @@ export class OcrComponent {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       try {
         const csv = e.target?.result as string;
-
-        // Check if content looks like valid CSV (comma-separated values)
-        // This will catch files like JSON that have .csv extension
         const lines = csv.split("\n").filter((line) => line.trim() !== "");
 
         if (lines.length === 0) {
@@ -123,7 +110,6 @@ export class OcrComponent {
           return;
         }
 
-        // Check for invalid characters (only allow numbers, commas, spaces, and line breaks)
         if (!/^[\d,\s]+$/.test(csv.trim())) {
           this.validationStates.hasInvalidCharacters = "failed";
           this.errorStatus.hasErrors = true;
@@ -132,29 +118,23 @@ export class OcrComponent {
           return;
         }
 
-        // Character validation passed
         this.validationStates.hasInvalidCharacters = "passed";
-
-        // File content appears to be valid CSV format
         this.validationStates.isValidFile = "passed";
 
-        // Parse all lines into policy numbers (flatten multi-line CSVs)
         const values = lines
-          .join(",") // Combine all lines with commas
+          .join(",")
           .split(",")
           .map((v) => v.trim())
           .filter((v) => v !== "");
-        this.policies = values.map((val) => {
-          return {
-            policyNumber: val, // Keep as string to preserve leading zeros
-            isValid: this.validateChecksum(val),
-          };
-        });
+
+        this.policies = values.map((val) => ({
+          policyNumber: val,
+          isValid: this.validateChecksum(val),
+        }));
       } catch (error) {
         this.validationStates.isValidFile = "failed";
         this.errorStatus.hasErrors = true;
         this.errorStatus.messages.push("Error parsing CSV file. Please ensure it is properly formatted.");
-        console.error("CSV parsing error:", error);
       }
     };
 
@@ -168,10 +148,7 @@ export class OcrComponent {
   }
 
   clearFile(fileInput: HTMLInputElement): void {
-    // Clear the file input
     fileInput.value = "";
-
-    // Reset all state
     this.selectedFile = null;
     this.policies = [];
     this.errorMessage = "";
@@ -199,22 +176,19 @@ export class OcrComponent {
    * Where d1 is the rightmost digit, d2 is second from right, etc.
    */
   private validateChecksum(policyNumberStr: string): boolean {
-    // Policy numbers must be exactly 9 digits
     if (policyNumberStr.length !== 9) {
       return false;
     }
 
     const digits = policyNumberStr.split("").map(Number);
-
-    // Calculate checksum: sum of (position * digit) from right to left
     let sum = 0;
+
     for (let i = 0; i < digits.length; i++) {
-      const position = i + 1; // Position starts at 1 from the right
-      const digit = digits[digits.length - 1 - i]; // Get digit from right to left
+      const position = i + 1;
+      const digit = digits[digits.length - 1 - i];
       sum += position * digit;
     }
 
-    // Valid if sum is divisible by 11
     return sum % 11 === 0;
   }
 
@@ -228,7 +202,6 @@ export class OcrComponent {
 
     const startTime = Date.now();
 
-    // POST to jsonplaceholder
     this.http
       .post<{ id: number; title: string; body: string; userId: number }>("https://jsonplaceholder.typicode.com/posts", {
         title: "Policy Numbers Submission",
@@ -240,23 +213,18 @@ export class OcrComponent {
           const elapsed = Date.now() - startTime;
           const remainingTime = Math.max(0, 2000 - elapsed);
 
-          // Ensure minimum 2 second delay
           setTimeout(() => {
             this.submissionStatus = "success";
             this.submittedResourceId = response.id;
             this.submissionDetails = { resourceId: response.id, policyCount: this.policies.length };
-            console.log("Submission response:", response);
           }, remainingTime);
         },
-        error: (error) => {
+        error: () => {
           const elapsed = Date.now() - startTime;
           const remainingTime = Math.max(0, 2000 - elapsed);
 
-          // Ensure minimum 2 second delay even for errors
           setTimeout(() => {
             this.submissionStatus = "error";
-
-            console.error("Submission error:", error);
           }, remainingTime);
         },
       });
