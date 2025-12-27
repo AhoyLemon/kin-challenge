@@ -13,13 +13,17 @@ module.exports = function (config) {
       suppressAll: true, // removes the duplicated traces
     },
     files: [{ pattern: "test-files/**/*.csv", included: false, served: true, watched: false }],
-    browsers: ["Chrome", "BraveHeadless"],
+    browsers: ["Chrome", "BraveHeadless", "VivaldiHeadless"],
     customLaunchers: {
       ChromeHeadlessCI: {
         base: "ChromeHeadless",
         flags: ["--no-sandbox"],
       },
       BraveHeadless: {
+        base: "ChromeHeadless",
+        flags: ["--no-sandbox"],
+      },
+      VivaldiHeadless: {
         base: "ChromeHeadless",
         flags: ["--no-sandbox"],
       },
