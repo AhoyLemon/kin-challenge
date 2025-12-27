@@ -205,8 +205,9 @@
         grid-template-columns: 8px 1fr;
         gap: 16px;
 
-        .icon {
+        &:before {
           aspect-ratio: 1/1;
+          content: "";
           background-color: var(--color-neutral-600);
           border-radius: 50%;
           margin-top: 8px;

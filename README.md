@@ -31,8 +31,19 @@ This will run all the tests defined in the `*.spec.ts` files. Individual tests a
 
 ### Testing with other browsers
 
-Mainly as an experiment, I wanted to set up Karma to work with other Chromium-based browsers as well, so you can run tests in Brave or Vivaldi using `npm run test:brave` or `npm run test:vivaldi`. However, you'll have to make sure you have those browsers installed, and you'll need to set the correct path to the browser executable in the `package.json` scripts.
+Mainly as an experiment, I wanted to set up Karma to work with other Chromium-based browsers as well, so you can run tests in Brave using `npm run test:brave` However, you'll have to make sure you have the appropriate browser installed, and you'll need to set the correct path to the browser executable in the `package.json` scripts.
 
 ### Manual Testing
 
-You can also manually test the application by uploading CSV files through the UI. Sample test files are located in the `test-files` directory.
+You can also manually test the application by uploading CSV files through the UI. Sample test files are located in the `test-files` directory. Descriptions below..
+
+| File Name              | Description                                                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checksum-invalid.csv` | All policy numbers will fail the checksum validation.                                                                                                   |
+| `checksum-mixed.csv`   | A mix of valid and invalid policy numbers based on checksum validation.                                                                                 |
+| `checksum-valid.csv`   | All policy numbers will pass the checksum validation.                                                                                                   |
+| `error-badfile.csv`    | Actually a misnamed .json file. Will fail the character validation.                                                                                     |
+| `error-empty.csv`      | An empty CSV file. Will trigger the empty file error handling.                                                                                          |
+| `error-filetoobig.csv` | A CSV file that exceeds the size limit. Will trigger the file size error handling.                                                                      |
+| `error-filetype.xml`   | Technically possible for the user to do if they really try hard. This file will be rejected because it isn't a csv, won't even be validated beyond that |
+| `fifty.csv`            | A CSV file with 50 policy numbers (mix of valid and invalid) to demo bigger tables                                                                      |

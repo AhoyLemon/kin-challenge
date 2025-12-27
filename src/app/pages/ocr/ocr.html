@@ -1,39 +1,36 @@
 <main class="page-ocr">
-  <div class="page-ocr-inner">
+  <form class="page-ocr-inner" (ngSubmit)="submitPolicyNumbers()" [attr.aria-busy]="submissionStatus === 'submitting' ? 'true' : null">
     <section class="form-holder">
-      <form>
-        <fieldset>
-          <div class="form-group">
-            <label for="csvFile">Choose CSV file:</label>
-            <input type="file" id="csvFile" name="csvFile" (change)="onFileSelected($event)" accept=".csv" required #fileInput />
-            <button *ngIf="selectedFile" type="button" class="clear-button" (click)="clearFile(fileInput)">Clear</button>
-          </div>
-        </fieldset>
-      </form>
+      <fieldset>
+        <div class="form-group">
+          <label for="csvFile">Choose CSV file:</label>
+          <input
+            type="file"
+            id="csvFile"
+            name="csvFile"
+            (change)="onFileSelected($event)"
+            accept=".csv"
+            required
+            aria-describedby="FileRequirements"
+            #fileInput
+          />
+          <button *ngIf="selectedFile" type="reset" class="clear-button" (click)="clearFile(fileInput)">Clear</button>
+        </div>
+      </fieldset>
     </section>
 
     <section *ngIf="!policies || policies.length === 0" class="loading-indicator">
       <div class="empty-state">
         <h1>Kin OCR</h1>
-        <p>Welcome!</p>
-        <p>Please upload a CSV file to get started.</p>
+        <p>Please choose a CSV file to get started.</p>
 
-        <dl>
+        <dl id="FileRequirements">
           <dt>Requirements:</dt>
           <dd>
-            <ul class="requirements-list">
-              <li [ngClass]="validationStates.isValidFile">
-                <span class="icon"></span>
-                Must be a valid CSV file
-              </li>
-              <li [ngClass]="validationStates.isSizeValid">
-                <span class="icon"></span>
-                Must be less than 2 MB in size
-              </li>
-              <li [ngClass]="validationStates.hasInvalidCharacters">
-                <span class="icon"></span>
-                Must contain only numbers, commas, and spaces
-              </li>
+            <ul class="requirements-list" aria-live="polite">
+              <li [ngClass]="validationStates.isValidFile">Must be a valid CSV file</li>
+              <li [ngClass]="validationStates.isSizeValid">Must be less than 2 MB in size</li>
+              <li [ngClass]="validationStates.hasInvalidCharacters">Must contain only numbers, commas, and spaces</li>
             </ul>
           </dd>
         </dl>
@@ -79,7 +76,7 @@
         </table>
 
         <div class="submission-process">
-          <button *ngIf="submissionStatus === 'idle'" type="button" class="submit-button" (click)="submitPolicyNumbers()">Submit Policy Numbers</button>
+          <button type="submit" class="submit-button" [disabled]="submissionStatus !== 'idle'">Submit Policy Numbers</button>
 
           <div *ngIf="submissionStatus === 'submitting'" class="progress-container">
             <div class="progress-bar">
@@ -88,7 +85,7 @@
             <p class="progress-text">Submitting policy numbers...</p>
           </div>
 
-          <section *ngIf="submissionStatus === 'success'" class="submission-message success" aria-live="polite" aria-atomic="true">
+          <aside *ngIf="submissionStatus === 'success'" class="submission-message success" role="alert" aria-live="polite">
             <header>
               <h2>Submission Successful</h2>
             </header>
@@ -98,14 +95,14 @@
                 {{ submissionDetails?.resourceId }}
               </dd>
             </dl>
-          </section>
+          </aside>
 
-          <div *ngIf="submissionStatus === 'error'" class="submission-message error">
+          <aside *ngIf="submissionStatus === 'error'" class="submission-message error" role="alert" aria-live="polite">
             <h2>Submission Failed</h2>
             <p>Failed to submit policy numbers. Please try again.</p>
-          </div>
+          </aside>
         </div>
       </div>
     </section>
-  </div>
+  </form>
 </main>

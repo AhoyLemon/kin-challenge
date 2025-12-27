@@ -7,8 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --browsers=ChromeHeadlessCI --no-watch",
-    "test:brave": "set CHROME_BIN=C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe && ng test --browsers=BraveHeadless --no-watch",
-    "test:vivaldi": "set CHROME_BIN=C:\\Users\\lemon\\AppData\\Local\\Vivaldi\\Application\\vivaldi.exe && ng test --browsers=VivaldiHeadless --no-watch"
+    "test:brave": "set CHROME_BIN=C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe && ng test --browsers=BraveHeadless --no-watch"
   },
   "private": true,
   "dependencies": {
