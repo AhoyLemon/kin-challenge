@@ -27,6 +27,7 @@ export class OcrComponent {
     isEmpty: false,
     messages: [] as string[],
   };
+
   policies: { policyNumber: string; isValid: boolean }[] = [];
   errorMessage: string = "";
   selectedFile: File | null = null;

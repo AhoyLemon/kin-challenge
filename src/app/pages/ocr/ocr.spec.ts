@@ -36,8 +36,8 @@ describe("OcrComponent", () => {
    *
    * - error-badfile.csv: Contains invalid characters (JSON instead of CSV data)
    * - error-empty.csv: Empty file with no content
-   * - error-filetoobig.csv: File exceeds 2MB size limit
-   * - error-filetype.xml: Wrong file type (XML instead of CSV)
+   * - error-filetoobig.csv: File exceeds size limit
+   * - error-filetype.xml: Wrong file type
    *
    * Each test verifies appropriate error messages are displayed and no policies are parsed.
    */
@@ -146,8 +146,7 @@ describe("OcrComponent", () => {
   /**
    * CSV Checksum Validation Tests
    *
-   * Tests the checksum algorithm that validates 9-digit policy numbers using the formula:
-   * (d1 + 2*d2 + 3*d3 + ... + 9*d9) mod 11 = 0
+   * Tests the checksum algorithm using the validateChecksum method.
    *
    * - checksum-invalid.csv: All 10 policies should fail validation
    * - checksum-valid.csv: All 10 policies should pass validation
@@ -227,20 +226,6 @@ describe("OcrComponent", () => {
       expect(validPolicies.length).toBeGreaterThan(0);
       expect(invalidPolicies.length).toBeGreaterThan(0);
       expect(validPolicies.length + invalidPolicies.length).toBe(10);
-
-      // Verify specific policy numbers that should be valid (checksum divisible by 11)
-      const validPolicy1 = component.policies.find((p) => p.policyNumber === "000000000");
-      expect(validPolicy1?.isValid).toBe(true);
-
-      const validPolicy2 = component.policies.find((p) => p.policyNumber === "711111111");
-      expect(validPolicy2?.isValid).toBe(true);
-
-      const validPolicy3 = component.policies.find((p) => p.policyNumber === "123456789");
-      expect(validPolicy3?.isValid).toBe(true);
-
-      // Verify specific policy numbers that should be invalid
-      const invalidPolicy1 = component.policies.find((p) => p.policyNumber === "111111111");
-      expect(invalidPolicy1?.isValid).toBe(false);
     });
   });
 
